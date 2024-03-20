@@ -23,18 +23,25 @@ struct functionObject
     }
 };
 
-int main()
+int main(int argc, char *argv[])
 {
-    int vectorSize;
-    cout << "Enter the size of the vector\n";
-    cin >> vectorSize; // Input the size of the vector
+    if (argc != 3)
+    {
+        cerr << "Usage: " << argv[0] << " <vector_size> <num_threads>\n";
+        return 1;
+    }
+
+    int vectorSize = atoi(argv[1]);
+    int noThreads = atoi(argv[2]);
+
+    if (vectorSize <= 0 || noThreads <= 0)
+    {
+        cerr << "Invalid input. Size of the vector and number of threads must be positive integers.\n";
+        return 1;
+    }
 
     vector<double> v(vectorSize);
     iota(v.begin(), v.end(), 1); // Fill the vector with values from 1 to n
-
-    int noThreads;
-    cout << "Enter the number of threads to be used for parallel processing\n";
-    cin >> noThreads; // Input the number of threads to be used for parallel processing
 
     vector<thread *> thr(noThreads);     // Vector to store pointers to threads
     vector<functionObject> f(noThreads); // Vector to store function objects
@@ -45,7 +52,7 @@ int main()
     {
         f[i].start = localStart;        // Assign the start iterator of the range
         f[i].end = localStart + step;   // Assign the end iterator of the range
-        thr[i] = new thread(ref(f[i])); // Create a new thread and store its pointer
+        thr[i] = new thread(ref(f[i])); // Create a new thread and store its pointer. ref(f[i]): passes a reference to the i-th element of the f vector.
         localStart += step;             // Move the iterator to the next sub-range
     }
 
